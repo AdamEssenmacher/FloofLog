@@ -1,3 +1,4 @@
+using FloofLog.Pages;
 using FloofLog.Services;
 using FloofLog.ViewModels;
 
@@ -21,7 +22,9 @@ public static class MauiProgram
 
         builder.Services.AddSingleton<IPetLogService, PetLogService>();
         builder.Services.AddSingleton<MainPageViewModel>();
+        builder.Services.AddSingleton<ManagePetsViewModel>();
         builder.Services.AddTransient<MainPage>();
+        builder.Services.AddTransient<ManagePetsPage>();
         builder.Services.AddSingleton<AppShell>();
 
 #if DEBUG

@@ -130,7 +130,7 @@ public sealed partial class MainPageViewModel : ObservableObject
         var pet = _petLogService.Pets.FirstOrDefault();
         if (pet is null)
         {
-            StatusMessage = "Add a pet before logging activities.";
+            StatusMessage = "Add a pet from the My Pets tab before logging activities.";
             return;
         }
 
@@ -211,7 +211,7 @@ public sealed partial class MainPageViewModel : ObservableObject
         var pet = _petLogService.Pets.FirstOrDefault();
         if (pet is null)
         {
-            StatusMessage = "Add a pet before scheduling reminders.";
+            StatusMessage = "Add a pet from the My Pets tab before scheduling reminders.";
             return;
         }
 
