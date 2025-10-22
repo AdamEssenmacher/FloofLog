@@ -1,23 +1,29 @@
-﻿namespace FloofLog;
+using FloofLog.ViewModels;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace FloofLog;
 
 public partial class MainPage : ContentPage
 {
-    int count = 0;
-
     public MainPage()
+        : this(GetRequiredService<MainPageViewModel>())
     {
-        InitializeComponent();
     }
 
-    private void OnCounterClicked(object? sender, EventArgs e)
+    public MainPage(MainPageViewModel viewModel)
     {
-        count++;
+        InitializeComponent();
+        BindingContext = viewModel;
+    }
 
-        if (count == 1)
-            CounterBtn.Text = $"Clicked {count} time";
-        else
-            CounterBtn.Text = $"Clicked {count} times";
+    private static TService GetRequiredService<TService>()
+        where TService : notnull
+    {
+        if (Application.Current?.Handler?.MauiContext?.Services is IServiceProvider services)
+        {
+            return services.GetRequiredService<TService>();
+        }
 
-        SemanticScreenReader.Announce(CounterBtn.Text);
+        throw new InvalidOperationException("Unable to resolve service.");
     }
 }
