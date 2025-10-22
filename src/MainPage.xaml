@@ -183,13 +183,17 @@
     </ContentPage.Resources>
 
     <ContentPage.ToolbarItems>
-        <ToolbarItem Text="Log Activity"
+        <ToolbarItem Text="Log Feeding"
                      Order="Primary"
                      Priority="0"
+                     Command="{Binding LogFeedingCommand}" />
+        <ToolbarItem Text="Log Activity"
+                     Order="Primary"
+                     Priority="1"
                      Command="{Binding AddActivityCommand}" />
         <ToolbarItem Text="Schedule Reminder"
                      Order="Primary"
-                     Priority="1"
+                     Priority="2"
                      Command="{Binding ScheduleReminderCommand}" />
     </ContentPage.ToolbarItems>
 
