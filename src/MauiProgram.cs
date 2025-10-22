@@ -1,4 +1,8 @@
-﻿using Microsoft.Extensions.Logging;
+using FloofLog.Services;
+using FloofLog.ViewModels;
+
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace FloofLog;
 
@@ -14,6 +18,11 @@ public static class MauiProgram
                 fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                 fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
             });
+
+        builder.Services.AddSingleton<IPetLogService, PetLogService>();
+        builder.Services.AddSingleton<MainPageViewModel>();
+        builder.Services.AddTransient<MainPage>();
+        builder.Services.AddSingleton<AppShell>();
 
 #if DEBUG
         builder.Logging.AddDebug();
