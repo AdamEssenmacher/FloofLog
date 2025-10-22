@@ -41,7 +41,8 @@
                                    FontSize="28"
                                    VerticalOptions="Center" />
 
-                            <VerticalStackLayout Spacing="4">
+                            <VerticalStackLayout Grid.Column="1"
+                                                  Spacing="4">
                                 <Label Text="{Binding DisplayName}"
                                        FontAttributes="Bold"
                                        FontSize="16" />
