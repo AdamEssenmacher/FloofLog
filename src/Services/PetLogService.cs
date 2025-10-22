@@ -59,7 +59,7 @@ public sealed class PetLogService : IPetLogService
 
     public async Task LoadAsync(CancellationToken cancellationToken = default)
     {
-        await _syncLock.WaitAsync(cancellationToken).ConfigureAwait(false);
+        await _syncLock.WaitAsync(cancellationToken);
         try
         {
             if (!File.Exists(_dataFilePath))
@@ -78,7 +78,7 @@ public sealed class PetLogService : IPetLogService
             var data = await JsonSerializer.DeserializeAsync<PetLogSnapshot>(
                 stream,
                 _serializerOptions,
-                cancellationToken).ConfigureAwait(false);
+                cancellationToken);
 
             if (data is null)
             {
@@ -97,10 +97,10 @@ public sealed class PetLogService : IPetLogService
 
     public async Task SaveAsync(CancellationToken cancellationToken = default)
     {
-        await _syncLock.WaitAsync(cancellationToken).ConfigureAwait(false);
+        await _syncLock.WaitAsync(cancellationToken);
         try
         {
-            await SaveSnapshotAsync(cancellationToken).ConfigureAwait(false);
+            await SaveSnapshotAsync(cancellationToken);
         }
         finally
         {
@@ -112,7 +112,7 @@ public sealed class PetLogService : IPetLogService
     {
         ArgumentNullException.ThrowIfNull(pet);
 
-        await _syncLock.WaitAsync(cancellationToken).ConfigureAwait(false);
+        await _syncLock.WaitAsync(cancellationToken);
         try
         {
             if (pet.Id == Guid.Empty)
@@ -126,7 +126,7 @@ public sealed class PetLogService : IPetLogService
 
             _pets.Add(pet);
 
-            await SaveSnapshotAsync(cancellationToken).ConfigureAwait(false);
+            await SaveSnapshotAsync(cancellationToken);
 
             return pet;
         }
@@ -147,7 +147,7 @@ public sealed class PetLogService : IPetLogService
     {
         ArgumentNullException.ThrowIfNull(pet);
 
-        await _syncLock.WaitAsync(cancellationToken).ConfigureAwait(false);
+        await _syncLock.WaitAsync(cancellationToken);
         try
         {
             var existing = _pets.FirstOrDefault(p => p.Id == pet.Id)
@@ -158,7 +158,7 @@ public sealed class PetLogService : IPetLogService
             existing.ArchivedAt = pet.ArchivedAt;
             existing.UpdatedAt = DateTimeOffset.UtcNow;
 
-            await SaveSnapshotAsync(cancellationToken).ConfigureAwait(false);
+            await SaveSnapshotAsync(cancellationToken);
         }
         finally
         {
@@ -168,7 +168,7 @@ public sealed class PetLogService : IPetLogService
 
     public async Task<bool> DeletePetAsync(Guid petId, CancellationToken cancellationToken = default)
     {
-        await _syncLock.WaitAsync(cancellationToken).ConfigureAwait(false);
+        await _syncLock.WaitAsync(cancellationToken);
         try
         {
             var pet = _pets.FirstOrDefault(p => p.Id == petId);
@@ -193,7 +193,7 @@ public sealed class PetLogService : IPetLogService
 
             if (removed)
             {
-                await SaveSnapshotAsync(cancellationToken).ConfigureAwait(false);
+                await SaveSnapshotAsync(cancellationToken);
             }
 
             return removed;
@@ -208,7 +208,7 @@ public sealed class PetLogService : IPetLogService
     {
         ArgumentNullException.ThrowIfNull(activity);
 
-        await _syncLock.WaitAsync(cancellationToken).ConfigureAwait(false);
+        await _syncLock.WaitAsync(cancellationToken);
         try
         {
             if (activity.Id == Guid.Empty)
@@ -227,7 +227,7 @@ public sealed class PetLogService : IPetLogService
 
             _activities.Add(activity);
 
-            await SaveSnapshotAsync(cancellationToken).ConfigureAwait(false);
+            await SaveSnapshotAsync(cancellationToken);
 
             return activity;
         }
@@ -248,7 +248,7 @@ public sealed class PetLogService : IPetLogService
     {
         ArgumentNullException.ThrowIfNull(activity);
 
-        await _syncLock.WaitAsync(cancellationToken).ConfigureAwait(false);
+        await _syncLock.WaitAsync(cancellationToken);
         try
         {
             var existing = _activities.FirstOrDefault(a => a.Id == activity.Id)
@@ -266,7 +266,7 @@ public sealed class PetLogService : IPetLogService
             existing.Recurrence = activity.Recurrence;
             existing.UpdatedAt = DateTimeOffset.UtcNow;
 
-            await SaveSnapshotAsync(cancellationToken).ConfigureAwait(false);
+            await SaveSnapshotAsync(cancellationToken);
         }
         finally
         {
@@ -276,7 +276,7 @@ public sealed class PetLogService : IPetLogService
 
     public async Task<bool> DeleteActivityAsync(Guid activityId, CancellationToken cancellationToken = default)
     {
-        await _syncLock.WaitAsync(cancellationToken).ConfigureAwait(false);
+        await _syncLock.WaitAsync(cancellationToken);
         try
         {
             var activity = _activities.FirstOrDefault(a => a.Id == activityId);
@@ -288,7 +288,7 @@ public sealed class PetLogService : IPetLogService
             var removed = _activities.Remove(activity);
             if (removed)
             {
-                await SaveSnapshotAsync(cancellationToken).ConfigureAwait(false);
+                await SaveSnapshotAsync(cancellationToken);
             }
 
             return removed;
@@ -303,7 +303,7 @@ public sealed class PetLogService : IPetLogService
     {
         ArgumentNullException.ThrowIfNull(reminder);
 
-        await _syncLock.WaitAsync(cancellationToken).ConfigureAwait(false);
+        await _syncLock.WaitAsync(cancellationToken);
         try
         {
             if (reminder.Id == Guid.Empty)
@@ -322,7 +322,7 @@ public sealed class PetLogService : IPetLogService
 
             _reminders.Add(reminder);
 
-            await SaveSnapshotAsync(cancellationToken).ConfigureAwait(false);
+            await SaveSnapshotAsync(cancellationToken);
 
             return reminder;
         }
@@ -343,7 +343,7 @@ public sealed class PetLogService : IPetLogService
     {
         ArgumentNullException.ThrowIfNull(reminder);
 
-        await _syncLock.WaitAsync(cancellationToken).ConfigureAwait(false);
+        await _syncLock.WaitAsync(cancellationToken);
         try
         {
             var existing = _reminders.FirstOrDefault(r => r.Id == reminder.Id)
@@ -361,7 +361,7 @@ public sealed class PetLogService : IPetLogService
             existing.Recurrence = reminder.Recurrence;
             existing.UpdatedAt = DateTimeOffset.UtcNow;
 
-            await SaveSnapshotAsync(cancellationToken).ConfigureAwait(false);
+            await SaveSnapshotAsync(cancellationToken);
         }
         finally
         {
@@ -371,7 +371,7 @@ public sealed class PetLogService : IPetLogService
 
     public async Task<bool> DeleteReminderAsync(Guid reminderId, CancellationToken cancellationToken = default)
     {
-        await _syncLock.WaitAsync(cancellationToken).ConfigureAwait(false);
+        await _syncLock.WaitAsync(cancellationToken);
         try
         {
             var reminder = _reminders.FirstOrDefault(r => r.Id == reminderId);
@@ -383,7 +383,7 @@ public sealed class PetLogService : IPetLogService
             var removed = _reminders.Remove(reminder);
             if (removed)
             {
-                await SaveSnapshotAsync(cancellationToken).ConfigureAwait(false);
+                await SaveSnapshotAsync(cancellationToken);
             }
 
             return removed;
@@ -422,8 +422,7 @@ public sealed class PetLogService : IPetLogService
             bufferSize: 4096,
             useAsync: true);
 
-        await JsonSerializer.SerializeAsync(stream, snapshot, _serializerOptions, cancellationToken)
-            .ConfigureAwait(false);
+        await JsonSerializer.SerializeAsync(stream, snapshot, _serializerOptions, cancellationToken);
     }
 
     private static Pet ClonePet(Pet pet)
