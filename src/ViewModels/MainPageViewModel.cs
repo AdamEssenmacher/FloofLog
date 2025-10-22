@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
@@ -11,6 +12,7 @@ using CommunityToolkit.Mvvm.Input;
 using FloofLog.Models;
 using FloofLog.Services;
 
+using Microsoft.Maui.ApplicationModel;
 using Microsoft.Maui.Controls;
 
 namespace FloofLog.ViewModels;
@@ -63,6 +65,8 @@ public sealed partial class MainPageViewModel : ObservableObject
         EditReminderCommand = new AsyncRelayCommand<PetReminder>(EditReminderAsync, CanModifyReminder);
         DeleteReminderCommand = new AsyncRelayCommand<PetReminder>(DeleteReminderAsync, CanModifyReminder);
 
+        SubscribeToPetChanges();
+
         _ = RefreshAsync();
     }
 
@@ -85,6 +89,14 @@ public sealed partial class MainPageViewModel : ObservableObject
     public IAsyncRelayCommand<PetReminder> EditReminderCommand { get; }
 
     public IAsyncRelayCommand<PetReminder> DeleteReminderCommand { get; }
+
+    private void SubscribeToPetChanges()
+    {
+        if (_petLogService.Pets is INotifyCollectionChanged observable)
+        {
+            observable.CollectionChanged += OnPetsCollectionChanged;
+        }
+    }
 
     private bool CanExecuteAddActivity() => !IsBusy;
 
@@ -130,7 +142,7 @@ public sealed partial class MainPageViewModel : ObservableObject
         var pet = _petLogService.Pets.FirstOrDefault();
         if (pet is null)
         {
-            StatusMessage = "Add a pet before logging activities.";
+            StatusMessage = "Add a pet from the My Pets tab before logging activities.";
             return;
         }
 
@@ -211,7 +223,7 @@ public sealed partial class MainPageViewModel : ObservableObject
         var pet = _petLogService.Pets.FirstOrDefault();
         if (pet is null)
         {
-            StatusMessage = "Add a pet before scheduling reminders.";
+            StatusMessage = "Add a pet from the My Pets tab before scheduling reminders.";
             return;
         }
 
@@ -468,6 +480,17 @@ public sealed partial class MainPageViewModel : ObservableObject
             .ToList();
 
         ReplaceCollection(UpcomingReminders, ordered);
+    }
+
+    private void OnPetsCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        MainThread.BeginInvokeOnMainThread(() =>
+        {
+            SyncActivities();
+            SyncReminders();
+            UpdateMetrics();
+            NotifyCommandStates();
+        });
     }
 
     private static void ReplaceCollection<T>(ObservableCollection<T> collection, IReadOnlyList<T> items)

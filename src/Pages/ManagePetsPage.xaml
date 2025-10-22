@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewModels="clr-namespace:FloofLog.ViewModels"
+             xmlns:models="clr-namespace:FloofLog.Models"
+             xmlns:shapes="clr-namespace:Microsoft.Maui.Controls.Shapes;assembly=Microsoft.Maui.Controls"
+             x:Class="FloofLog.Pages.ManagePetsPage"
+             x:Name="PetsPage"
+             x:DataType="viewModels:ManagePetsViewModel"
+             Title="My Pets">
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Add Pet"
+                     Order="Primary"
+                     Priority="0"
+                     Command="{Binding AddPetCommand}" />
+    </ContentPage.ToolbarItems>
+
+    <VerticalStackLayout Padding="24"
+                         Spacing="16">
+        <Label Text="Keep track of everyone in your pack"
+               Style="{StaticResource Headline}" />
+        <Label Text="{Binding TotalPets, StringFormat='Tracking {0} pet(s).'}"
+               FontSize="14"
+               TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}" />
+
+        <Border Stroke="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}"
+                BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray900}}"
+                StrokeShape="{shapes:RoundRectangle CornerRadius=16}"
+                Padding="12">
+            <Border.Triggers>
+                <DataTrigger TargetType="Border" Binding="{Binding StatusMessage}" Value="{x:Null}">
+                    <Setter Property="IsVisible" Value="False" />
+                </DataTrigger>
+                <DataTrigger TargetType="Border" Binding="{Binding StatusMessage}" Value="">
+                    <Setter Property="IsVisible" Value="False" />
+                </DataTrigger>
+            </Border.Triggers>
+            <Label Text="{Binding StatusMessage}"
+                   FontSize="12"
+                   TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}" />
+        </Border>
+
+        <RefreshView Command="{Binding RefreshCommand}"
+                     IsRefreshing="{Binding IsBusy}">
+            <CollectionView ItemsSource="{Binding Pets}"
+                            SelectionMode="None">
+                <CollectionView.EmptyView>
+                    <Border Stroke="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray900}}"
+                            StrokeShape="{shapes:RoundRectangle CornerRadius=16}"
+                            Padding="24">
+                        <VerticalStackLayout Spacing="12"
+                                              HorizontalOptions="Center"
+                                              VerticalOptions="Center">
+                            <Label Text="No pets yet"
+                                   FontAttributes="Bold"
+                                   HorizontalTextAlignment="Center" />
+                            <Label Text="Add your first pet to start logging their activities."
+                                   FontSize="12"
+                                   HorizontalTextAlignment="Center"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}" />
+                            <Button Text="Add a pet"
+                                    Command="{Binding Source={x:Reference PetsPage}, Path=BindingContext.AddPetCommand}"
+                                    HorizontalOptions="Center" />
+                        </VerticalStackLayout>
+                    </Border>
+                </CollectionView.EmptyView>
+
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:Pet">
+                        <SwipeView>
+                            <SwipeView.RightItems>
+                                <SwipeItems Mode="Reveal">
+                                    <SwipeItem Text="Edit"
+                                               BackgroundColor="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}"
+                                               Command="{Binding Source={x:Reference PetsPage}, Path=BindingContext.EditPetCommand}"
+                                               CommandParameter="{Binding .}" />
+                                    <SwipeItem Text="Delete"
+                                               BackgroundColor="Tomato"
+                                               Command="{Binding Source={x:Reference PetsPage}, Path=BindingContext.DeletePetCommand}"
+                                               CommandParameter="{Binding .}" />
+                                </SwipeItems>
+                            </SwipeView.RightItems>
+
+                            <Border Stroke="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}"
+                                    BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray900}}"
+                                    StrokeShape="{shapes:RoundRectangle CornerRadius=16}"
+                                    Padding="16"
+                                    Margin="0,0,0,12">
+                                <VerticalStackLayout Spacing="6">
+                                    <Label Text="{Binding DisplayName}"
+                                           FontAttributes="Bold"
+                                           FontSize="16" />
+                                    <Label Text="{Binding Notes}"
+                                           FontSize="12"
+                                           TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}"
+                                           LineBreakMode="WordWrap">
+                                        <Label.Triggers>
+                                            <DataTrigger TargetType="Label" Binding="{Binding Notes}" Value="">
+                                                <Setter Property="IsVisible" Value="False" />
+                                            </DataTrigger>
+                                            <DataTrigger TargetType="Label" Binding="{Binding Notes}" Value="{x:Null}">
+                                                <Setter Property="IsVisible" Value="False" />
+                                            </DataTrigger>
+                                        </Label.Triggers>
+                                    </Label>
+                                    <Label Text="{Binding CreatedAt, StringFormat='Added {0:MMM d, yyyy}'}"
+                                           FontSize="10"
+                                           TextColor="{AppThemeBinding Light={StaticResource Gray400}, Dark={StaticResource Gray500}}" />
+                                </VerticalStackLayout>
+                            </Border>
+                        </SwipeView>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </RefreshView>
+    </VerticalStackLayout>
+</ContentPage>
