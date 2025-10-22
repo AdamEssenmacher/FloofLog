@@ -4,126 +4,335 @@
              xmlns:viewModels="clr-namespace:FloofLog.ViewModels"
              xmlns:models="clr-namespace:FloofLog.Models"
              xmlns:shapes="clr-namespace:Microsoft.Maui.Controls.Shapes;assembly=Microsoft.Maui.Controls"
+             xmlns:converters="clr-namespace:FloofLog.Converters"
+             xmlns:selectors="clr-namespace:FloofLog.Selectors"
              x:Class="FloofLog.MainPage"
+             x:Name="DashboardPage"
              x:DataType="viewModels:MainPageViewModel"
              Title="Dashboard">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converters:ActivityIconConverter x:Key="ActivityIconConverter" />
+            <converters:ReminderStatusConverter x:Key="ReminderStatusConverter" />
+
+            <DataTemplate x:Key="ActivityTemplate" x:DataType="models:PetActivity">
+                <SwipeView>
+                    <SwipeView.RightItems>
+                        <SwipeItems Mode="Reveal">
+                            <SwipeItem Text="Edit"
+                                       BackgroundColor="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}"
+                                       Command="{Binding Source={x:Reference DashboardPage}, Path=BindingContext.EditActivityCommand}"
+                                       CommandParameter="{Binding .}" />
+                            <SwipeItem Text="Delete"
+                                       BackgroundColor="Tomato"
+                                       Command="{Binding Source={x:Reference DashboardPage}, Path=BindingContext.DeleteActivityCommand}"
+                                       CommandParameter="{Binding .}" />
+                        </SwipeItems>
+                    </SwipeView.RightItems>
+
+                    <Border Stroke="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray900}}"
+                            StrokeShape="{shapes:RoundRectangle CornerRadius=16}"
+                            Padding="16"
+                            Margin="0,0,0,12">
+                        <Grid ColumnDefinitions="Auto,*"
+                              ColumnSpacing="12">
+                            <Label Text="{Binding ., Converter={StaticResource ActivityIconConverter}}"
+                                   FontSize="28"
+                                   VerticalOptions="Center" />
+
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="{Binding DisplayName}"
+                                       FontAttributes="Bold"
+                                       FontSize="16" />
+                                <Label Text="{Binding Notes}"
+                                       FontSize="12"
+                                       TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}"
+                                       LineBreakMode="WordWrap">
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label" Binding="{Binding Notes}" Value="">
+                                            <Setter Property="IsVisible" Value="False" />
+                                        </DataTrigger>
+                                        <DataTrigger TargetType="Label" Binding="{Binding Notes}" Value="{x:Null}">
+                                            <Setter Property="IsVisible" Value="False" />
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
+                                <Label Text="{Binding OccurredAt, StringFormat='{}{0:MMM d, h:mm tt}'}"
+                                       FontSize="12"
+                                       TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}" />
+                            </VerticalStackLayout>
+                        </Grid>
+                    </Border>
+                </SwipeView>
+            </DataTemplate>
+
+            <DataTemplate x:Key="UpcomingReminderTemplate" x:DataType="models:PetReminder">
+                <SwipeView>
+                    <SwipeView.RightItems>
+                        <SwipeItems Mode="Reveal">
+                            <SwipeItem Text="Edit"
+                                       BackgroundColor="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}"
+                                       Command="{Binding Source={x:Reference DashboardPage}, Path=BindingContext.EditReminderCommand}"
+                                       CommandParameter="{Binding .}" />
+                            <SwipeItem Text="Delete"
+                                       BackgroundColor="Tomato"
+                                       Command="{Binding Source={x:Reference DashboardPage}, Path=BindingContext.DeleteReminderCommand}"
+                                       CommandParameter="{Binding .}" />
+                        </SwipeItems>
+                    </SwipeView.RightItems>
+
+                    <Border Stroke="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray900}}"
+                            StrokeShape="{shapes:RoundRectangle CornerRadius=16}"
+                            Padding="16"
+                            Margin="0,0,0,12">
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="{Binding DisplayName}"
+                                   FontAttributes="Bold"
+                                   FontSize="16" />
+                            <Label Text="{Binding ., Converter={StaticResource ReminderStatusConverter}}"
+                                   FontSize="12"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}" />
+                            <Label Text="{Binding RemindAt, StringFormat='{}{0:MMM d, h:mm tt}'}"
+                                   FontSize="12"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}">
+                                <Label.Triggers>
+                                    <DataTrigger TargetType="Label" Binding="{Binding RemindAt}" Value="{x:Null}">
+                                        <Setter Property="IsVisible" Value="False" />
+                                    </DataTrigger>
+                                </Label.Triggers>
+                            </Label>
+                            <Label Text="{Binding Notes}"
+                                   FontSize="12"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}"
+                                   LineBreakMode="WordWrap">
+                                <Label.Triggers>
+                                    <DataTrigger TargetType="Label" Binding="{Binding Notes}" Value="">
+                                        <Setter Property="IsVisible" Value="False" />
+                                    </DataTrigger>
+                                    <DataTrigger TargetType="Label" Binding="{Binding Notes}" Value="{x:Null}">
+                                        <Setter Property="IsVisible" Value="False" />
+                                    </DataTrigger>
+                                </Label.Triggers>
+                            </Label>
+                        </VerticalStackLayout>
+                    </Border>
+                </SwipeView>
+            </DataTemplate>
+
+            <DataTemplate x:Key="OverdueReminderTemplate" x:DataType="models:PetReminder">
+                <SwipeView>
+                    <SwipeView.RightItems>
+                        <SwipeItems Mode="Reveal">
+                            <SwipeItem Text="Edit"
+                                       BackgroundColor="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}"
+                                       Command="{Binding Source={x:Reference DashboardPage}, Path=BindingContext.EditReminderCommand}"
+                                       CommandParameter="{Binding .}" />
+                            <SwipeItem Text="Delete"
+                                       BackgroundColor="Tomato"
+                                       Command="{Binding Source={x:Reference DashboardPage}, Path=BindingContext.DeleteReminderCommand}"
+                                       CommandParameter="{Binding .}" />
+                        </SwipeItems>
+                    </SwipeView.RightItems>
+
+                    <Border Stroke="Tomato"
+                            BackgroundColor="{AppThemeBinding Light=#33FF6F60, Dark=#66FF6F60}"
+                            StrokeShape="{shapes:RoundRectangle CornerRadius=16}"
+                            Padding="16"
+                            Margin="0,0,0,12">
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="{Binding DisplayName}"
+                                   FontAttributes="Bold"
+                                   FontSize="16" />
+                            <Label Text="{Binding ., Converter={StaticResource ReminderStatusConverter}}"
+                                   FontAttributes="Bold"
+                                   FontSize="12"
+                                   TextColor="Tomato" />
+                            <Label Text="{Binding RemindAt, StringFormat='{}{0:MMM d, h:mm tt}'}"
+                                   FontSize="12"
+                                   TextColor="Tomato">
+                                <Label.Triggers>
+                                    <DataTrigger TargetType="Label" Binding="{Binding RemindAt}" Value="{x:Null}">
+                                        <Setter Property="IsVisible" Value="False" />
+                                    </DataTrigger>
+                                </Label.Triggers>
+                            </Label>
+                            <Label Text="{Binding Notes}"
+                                   FontSize="12"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}"
+                                   LineBreakMode="WordWrap">
+                                <Label.Triggers>
+                                    <DataTrigger TargetType="Label" Binding="{Binding Notes}" Value="">
+                                        <Setter Property="IsVisible" Value="False" />
+                                    </DataTrigger>
+                                    <DataTrigger TargetType="Label" Binding="{Binding Notes}" Value="{x:Null}">
+                                        <Setter Property="IsVisible" Value="False" />
+                                    </DataTrigger>
+                                </Label.Triggers>
+                            </Label>
+                        </VerticalStackLayout>
+                    </Border>
+                </SwipeView>
+            </DataTemplate>
+
+            <selectors:ReminderTemplateSelector x:Key="ReminderTemplateSelector"
+                                                UpcomingTemplate="{StaticResource UpcomingReminderTemplate}"
+                                                OverdueTemplate="{StaticResource OverdueReminderTemplate}" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Log Feeding"
+                     Order="Primary"
+                     Priority="0"
+                     Command="{Binding LogFeedingCommand}" />
+        <ToolbarItem Text="Log Activity"
+                     Order="Primary"
+                     Priority="1"
+                     Command="{Binding AddActivityCommand}" />
+        <ToolbarItem Text="Schedule Reminder"
+                     Order="Primary"
+                     Priority="2"
+                     Command="{Binding ScheduleReminderCommand}" />
+    </ContentPage.ToolbarItems>
 
     <RefreshView Command="{Binding RefreshCommand}"
                  IsRefreshing="{Binding IsBusy}">
         <ScrollView>
             <VerticalStackLayout Padding="24"
-                                  Spacing="16">
+                                  Spacing="20">
                 <Label Text="Welcome back!"
                        Style="{StaticResource Headline}" />
 
-                <Grid ColumnDefinitions="*,*,*"
-                      ColumnSpacing="12"
-                      RowSpacing="12">
-                    <Border Stroke="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray500}}"
+                <Grid ColumnDefinitions="*,*"
+                      RowDefinitions="Auto,Auto"
+                      ColumnSpacing="16"
+                      RowSpacing="16">
+                    <Border Stroke="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}"
                             BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray900}}"
-                            Padding="12">
+                            Padding="16">
                         <Border.StrokeShape>
-                            <shapes:RoundRectangle CornerRadius="12" />
+                            <shapes:RoundRectangle CornerRadius="16" />
                         </Border.StrokeShape>
-                        <VerticalStackLayout>
-                            <Label Text="Total Pets"
-                                   FontAttributes="Bold"
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="Last feeding"
                                    FontSize="12"
+                                   FontAttributes="Bold"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray200}}" />
+                            <Label Text="{Binding LastFeedingSummary}"
+                                   FontSize="16"
+                                   LineBreakMode="WordWrap" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <Border Grid.Column="1"
+                            Stroke="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray900}}"
+                            Padding="16">
+                        <Border.StrokeShape>
+                            <shapes:RoundRectangle CornerRadius="16" />
+                        </Border.StrokeShape>
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="Next walk"
+                                   FontSize="12"
+                                   FontAttributes="Bold"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray200}}" />
+                            <Label Text="{Binding NextWalkSummary}"
+                                   FontSize="16"
+                                   LineBreakMode="WordWrap" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <Border Grid.Row="1"
+                            Stroke="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray900}}"
+                            Padding="16">
+                        <Border.StrokeShape>
+                            <shapes:RoundRectangle CornerRadius="16" />
+                        </Border.StrokeShape>
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="Pets in your care"
+                                   FontSize="12"
+                                   FontAttributes="Bold"
                                    TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray200}}" />
                             <Label Text="{Binding TotalPets}"
                                    FontSize="28"
                                    FontAttributes="Bold" />
                         </VerticalStackLayout>
                     </Border>
-                    <Border Grid.Column="1"
-                            Stroke="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray500}}"
+
+                    <Border Grid.Row="1"
+                            Grid.Column="1"
+                            Stroke="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}"
                             BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray900}}"
-                            Padding="12">
+                            Padding="16">
                         <Border.StrokeShape>
-                            <shapes:RoundRectangle CornerRadius="12" />
+                            <shapes:RoundRectangle CornerRadius="16" />
                         </Border.StrokeShape>
-                        <VerticalStackLayout>
-                            <Label Text="Activities Today"
-                                   FontAttributes="Bold"
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="Today’s activity count"
                                    FontSize="12"
+                                   FontAttributes="Bold"
                                    TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray200}}" />
                             <Label Text="{Binding ActivitiesLoggedToday}"
                                    FontSize="28"
                                    FontAttributes="Bold" />
-                        </VerticalStackLayout>
-                    </Border>
-                    <Border Grid.Column="2"
-                            Stroke="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray500}}"
-                            BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray900}}"
-                            Padding="12">
-                        <Border.StrokeShape>
-                            <shapes:RoundRectangle CornerRadius="12" />
-                        </Border.StrokeShape>
-                        <VerticalStackLayout>
-                            <Label Text="Pending Reminders"
-                                   FontAttributes="Bold"
+                            <Label Text="Pending reminders: {Binding PendingReminders}"
                                    FontSize="12"
-                                   TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray200}}" />
-                            <Label Text="{Binding PendingReminders}"
-                                   FontSize="28"
-                                   FontAttributes="Bold" />
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}" />
                         </VerticalStackLayout>
                     </Border>
                 </Grid>
 
-                <VerticalStackLayout Spacing="8">
-                    <Label Text="Log a quick activity"
-                           FontAttributes="Bold"
-                           FontSize="18" />
-                    <Entry Placeholder="Describe the activity"
-                           Text="{Binding NewActivityName}" />
-                    <HorizontalStackLayout Spacing="12">
-                        <Button Text="Add Activity"
-                                Command="{Binding AddActivityCommand}" />
-                        <Button Text="Log Feeding"
-                                Command="{Binding LogFeedingCommand}" />
-                    </HorizontalStackLayout>
-                </VerticalStackLayout>
-
-                <VerticalStackLayout Spacing="8">
-                    <Label Text="Plan a reminder"
-                           FontAttributes="Bold"
-                           FontSize="18" />
-                    <Entry Placeholder="Reminder title"
-                           Text="{Binding NewReminderTitle}" />
-                    <Button Text="Schedule Reminder"
-                            Command="{Binding ScheduleReminderCommand}" />
-                </VerticalStackLayout>
-
                 <Label Text="Recent Activities"
                        Style="{StaticResource SubHeadline}" />
                 <CollectionView ItemsSource="{Binding RecentActivities}"
-                                HeightRequest="220">
-                    <CollectionView.ItemTemplate>
-                        <DataTemplate x:DataType="models:PetActivity">
-                            <VerticalStackLayout Padding="12"
-                                                 Spacing="4">
-                                <Label Text="{Binding DisplayName}" FontAttributes="Bold" />
-                                <Label Text="{Binding Notes}" FontSize="12" TextColor="Gray" />
-                                <Label Text="{Binding OccurredAt, StringFormat='{0:G}'}" FontSize="12" />
+                                ItemTemplate="{StaticResource ActivityTemplate}"
+                                SelectionMode="None">
+                    <CollectionView.EmptyView>
+                        <Border Stroke="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}"
+                                BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray900}}"
+                                StrokeShape="{shapes:RoundRectangle CornerRadius=16}"
+                                Padding="24">
+                            <VerticalStackLayout Spacing="8"
+                                                  HorizontalOptions="Center"
+                                                  VerticalOptions="Center">
+                                <Label Text="No activities yet"
+                                       FontAttributes="Bold"
+                                       HorizontalTextAlignment="Center" />
+                                <Label Text="Log your first activity from the toolbar to start building your pet’s history."
+                                       HorizontalTextAlignment="Center"
+                                       FontSize="12"
+                                       TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}" />
                             </VerticalStackLayout>
-                        </DataTemplate>
-                    </CollectionView.ItemTemplate>
+                        </Border>
+                    </CollectionView.EmptyView>
                 </CollectionView>
 
                 <Label Text="Upcoming Reminders"
                        Style="{StaticResource SubHeadline}" />
                 <CollectionView ItemsSource="{Binding UpcomingReminders}"
-                                HeightRequest="220">
-                    <CollectionView.ItemTemplate>
-                        <DataTemplate x:DataType="models:PetReminder">
-                            <VerticalStackLayout Padding="12"
-                                                 Spacing="4">
-                                <Label Text="{Binding DisplayName}" FontAttributes="Bold" />
-                                <Label Text="{Binding RemindAt, StringFormat='{0:G}'}" FontSize="12" />
+                                ItemTemplate="{StaticResource ReminderTemplateSelector}"
+                                SelectionMode="None">
+                    <CollectionView.EmptyView>
+                        <Border Stroke="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}"
+                                BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray900}}"
+                                StrokeShape="{shapes:RoundRectangle CornerRadius=16}"
+                                Padding="24">
+                            <VerticalStackLayout Spacing="8"
+                                                  HorizontalOptions="Center"
+                                                  VerticalOptions="Center">
+                                <Label Text="No reminders scheduled"
+                                       FontAttributes="Bold"
+                                       HorizontalTextAlignment="Center" />
+                                <Label Text="Use the toolbar to schedule the next walk, medication, or grooming session."
+                                       HorizontalTextAlignment="Center"
+                                       FontSize="12"
+                                       TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}" />
                             </VerticalStackLayout>
-                        </DataTemplate>
-                    </CollectionView.ItemTemplate>
+                        </Border>
+                    </CollectionView.EmptyView>
                 </CollectionView>
 
                 <Label Text="{Binding StatusMessage}"
